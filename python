@@ -1,0 +1,141 @@
+import pandas as pd 
+MAI1=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W1D4.xlsx",dtype={"CEP":"str"})
+MAI2=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W1D5.xlsx",dtype={"CEP":"str"})
+MAI3=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W1D6.xlsx",dtype={"CEP":"str"})
+MAI4=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W1D7.xlsx",dtype={"CEP":"str"})
+MAI5=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W2D1.xlsx",dtype={"CEP":"str"})
+MAI6=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W2D3.xlsx",dtype={"CEP":"str"})
+MAI7=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W2D4.xlsx",dtype={"CEP":"str"})
+MAI8=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W2D6.xlsx",dtype={"CEP":"str"})
+MAI9=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W2D7.xlsx",dtype={"CEP":"str"})
+MAI10=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W3D1.xlsx",dtype={"CEP":"str"})
+MAI11=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W3D2.xlsx",dtype={"CEP":"str"})
+MAI12=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W3D3.xlsx",dtype={"CEP":"str"})
+MAI13=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W3D4.xlsx",dtype={"CEP":"str"})
+MAI14=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W3D5.xlsx",dtype={"CEP":"str"})
+MAI15=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W3D7.xlsx",dtype={"CEP":"str"})
+MAI16=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W4D1.xlsx",dtype={"CEP":"str"})
+MAI17=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\MAI\MAI_W4D2.xlsx",dtype={"CEP":"str"})
+JUN1=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W1D1.xlsx",dtype={"CEP":"str"})
+JUN2=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W1D2.xlsx",dtype={"CEP":"str"})
+JUN3=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W1D5.xlsx",dtype={"CEP":"str"})
+JUN4=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W1D6.xlsx",dtype={"CEP":"str"})
+JUN5=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W1D7.xlsx",dtype={"CEP":"str"})
+JUN6=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W2D1.xlsx",dtype={"CEP":"str"})
+JUN7=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W2D2.xlsx",dtype={"CEP":"str"})
+JUN8=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W2D3.xlsx",dtype={"CEP":"str"})
+JUN9=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W2D4.xlsx",dtype={"CEP":"str"})
+JUN10=pd.read_excel(r"C:\Users\tecno\anaconda3\envs\envpower_bi\JUN\JUN_W2D5.xlsx",dtype={"CEP":"str"})
+
+PMAI=pd.concat([MAI1,MAI2,MAI3,MAI4,MAI5,MAI6,MAI7,MAI8,MAI9,MAI10,MAI11,MAI12,MAI13,MAI14,MAI15,MAI16,MAI17])
+PJUN=pd.concat([JUN1,JUN2,JUN3,JUN4,JUN5,JUN6,JUN7,JUN8,JUN9,JUN10])
+
+PMAI=PMAI.reset_index(drop=True)
+PJUN=PJUN.reset_index(drop=True)
+BD2024=pd.concat([PMAI,PJUN])
+BD2024=BD2024.drop(columns=['RUA','N° DA CASA','BAIRRO','UF'])
+BD2024.shape
+BD2024.info()
+
+#BUSCA DO ENDEREÇO PELO CEP INFORMADO
+
+BDCEP=BD2024['CEP']
+BDCEP=pd.DataFrame(BDCEP)
+BDCEP.drop_duplicates(inplace=True)
+BDCEP.head()
+print("CEPs:",BDCEP.count())
+
+#VAREDURA DO ENDEREÇO COMPREÇO PELO SITE VIACEP
+import urllib.request
+import json
+
+for idx, row in BDCEP.iterrows():
+  cep=row.CEP
+  url=f'http://viacep.com.br/ws/{cep}/json/'    
+  headers={'User-Agent':'Autociencia/1.0'}
+  requisicao=urllib.request.Request(url,headers=headers, method="GET")
+  amostra=urllib.request.urlopen(requisicao)
+  dados_endereco=amostra.read().decode("utf-8")
+  endereco=json.loads(dados_endereco)
+  amostra.close()
+  print(endereco)
+  
+if "cep" in endereco:
+    BDCEP.at[idx, "LOGRADOURO"]=endereco["logradouro"]
+    BDCEP.at[idx, "BAIRRO"]=endereco["bairro"]
+    BDCEP.at[idx, "CIDADE"]=endereco["localidade"]
+    BDCEP.at[idx, "ESTADO"]=endereco["uf"]
+    BDCEP.at[idx,"IBGE"]=endereco["ibge"]
+else: 
+    BDCEP.at[idx, "LOGRADOURO"]='NÃO LOCALIZADO'
+    BDCEP.at[idx, "BAIRRO"]='NÃO LOCALIZADO'
+    BDCEP.at[idx, "CIDADE"]='NÃO LOCALIZADO'
+    BDCEP.at[idx, "ESTADO"]='NÃO LOCALIZADO'
+    BDCEP.at[idx, "IBGE"]='NÃO LOCALIZADO'
+BDCEP.head()
+
+BDCEP['BAIRRO_CIDADE']=BDCEP['BAIRRO']+"-"+BDCEP["CIDADE"]
+BDCEP.head()
+
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+ 
+localizador=Nominatim(user_agent='localizacao')
+geocode=RateLimiter(localizador.geocode, min_delay_seconds=1)
+BDCEP['BAIRRO_GEOLOCALIZADOR']=BDCEP["BAIRRO_CIDADE"].apply(geocode)
+BDCEP.head()
+
+BDCEP["BAIRRO_GEOLOCALIZADOR"].isna().sum()
+BDCEP.dropna(inplace=True)
+print(BDCEP)
+
+
+BDCEP["LAT"]=BDCEP["BAIRRO_GEOLOCALIZADOR"].apply(lambda loc: loc.latitude)
+BDCEP["LON"]=BDCEP["BAIRRO_GEOLOCALIZADOR"].apply(lambda loc: loc.longitude)
+
+BDCEP.drop("BAIRRO_CIDADE",axis=1, inplace=True)
+BDCEP.drop("BAIRRO_GEOLOCALIZADOR",axis=1, inplace=True)
+
+
+BD_TRAT=pd.merge(BD2024,BDCEP, how="inner",on="CEP")
+print(BD_TRAT)
+
+#PREÇO MODAL 
+MODAL=BD2024.groupby(['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'])['PREÇO'].agg(lambda x: x.mode()[0] if not x.mode().empty else'N/A')
+BDMODAL=MODAL.reset_index()
+DBMODAL=BDMODAL.rename(columns={'PREÇO':'PREÇO MODAL'})
+print(DBMODAL)
+
+#CONTAGEM DE AMOSTRA
+
+CONT=BD2024.groupby(['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'])['PREÇO'].agg(lambda x:x[x==x.mode()[0]].count() if not x.mode().empty else 0)
+BDCONT=CONT.reset_index()
+BDCONT=BDCONT.rename(columns={"PREÇO":"AMOSTRA MODAL"})
+
+#PREÇO MAX
+MAX=BD2024.groupby(['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'])['PREÇO'].max()
+BDMAX=MAX.reset_index()
+BDMAX=BDMAX.rename(columns={'PREÇO':'MAX'})
+
+#PREÇO MIN
+
+MIN=BD2024.groupby(['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'])['PREÇO'].min()
+BDMIN=MIN.reset_index()
+BDMIN=BDMIN.rename(columns={'PREÇO':'MIN'})
+
+#PROCV DAS INFORMAÇÕES
+DADOS1=BDMODAL.merge(BDMAX,on=['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'],how='left')
+print(DADOS1)
+
+DADOS2=DADOS1.merge(BDMIN,on=['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'],how='left')
+
+BD_FINAL=DADOS2.merge(BDCONT,on=['ANO','MÊS','CATEGORIA','PRODUTO','MARCA','TAMANHO','CANAL'],how='left')
+BD_FINAL=BD_FINAL.rename(columns={'PREÇO':'PREÇO MODAL'})
+
+print(BD_FINAL)
+
+df=pd.DataFrame (BD_TRAT)
+df.to_excel("BD_TRAT.xlsx",index=False)
+df1=pd.DataFrame (BD_FINAL)
+df1.to_excel("BD_FINAL.xlsx",index=False)
+
